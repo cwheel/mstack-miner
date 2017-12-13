@@ -1,0 +1,6 @@
+{
+    "miner_host": "localhost",
+    "miner_port": 4028,
+    "miner": "sgminer",
+    "api_port": 3000
+}
