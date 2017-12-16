@@ -4,5 +4,7 @@
     "miner": "sgminer",
     "api_port": 3000,
     "api_username": "test",
-    "api_password": "test"
+    "api_password": "test",
+    "ssl_cert": "cert.pem",
+    "ssl_key": "key.pem"
 }
