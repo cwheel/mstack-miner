@@ -8,16 +8,19 @@ from itsdangerous import TimedJSONWebSignatureSerializer
 
 class API(object):
 
-    def __init__(self, port, api_username, api_password, miner):
+    def __init__(self, port, api_username, api_password, cert, key, miner):
         self.port = port
         self.miner = miner
         self.api_username = api_username
         self.api_password = api_password
 
+        self.cert = cert
+        self.key = key
+
         self.jwt = TimedJSONWebSignatureSerializer(str(uuid.uuid4()), expires_in=60*60*8)
 
     def serve(self):
-        self._get_router().run(host='0.0.0.0', port=self.port)
+        self._get_router().run(host='0.0.0.0', port=self.port, ssl_context=(self.cert, self.key))
 
     def _get_router(self):
         api = Flask(__name__)
