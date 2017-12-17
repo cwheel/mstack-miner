@@ -26,6 +26,5 @@ if __name__ == '__main__':
         config['api_password'],
         config['ssl_cert'],
         config['ssl_key'],
-        config['api_password'],
         miner
     ).serve()

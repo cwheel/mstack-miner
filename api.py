@@ -1,10 +1,16 @@
 import uuid
+import os
+import sys
+import socket
 
 from flask import Flask
 from flask import jsonify
+from flask import request
 from flask_httpauth import HTTPBasicAuth
 from flask_httpauth import HTTPTokenAuth
 from itsdangerous import TimedJSONWebSignatureSerializer
+
+import util
 
 class API(object):
 
@@ -22,6 +28,9 @@ class API(object):
     def serve(self):
         self._get_router().run(host='0.0.0.0', port=self.port, ssl_context=(self.cert, self.key))
 
+    def stop_serving(self):
+        request.environ.get('werkzeug.server.shutdown')()
+
     def _get_router(self):
         api = Flask(__name__)
 
@@ -30,10 +39,8 @@ class API(object):
 
         @token_auth.verify_token
         def verify_token(token):
-            return True
             try:
                 sig = self.jwt.loads(token)
-                print sig
             except:
                 return False
 
@@ -67,5 +74,13 @@ class API(object):
         @api_auth.login_required
         def token():
             return self.jwt.dumps({'token_creator': 'mstack-miner'})
+
+        @api.route('/update')
+        def update():
+            util.update_from_git()
+            self.stop_serving()
+            util.delayed_restart()
+
+            return ''
 
         return api
