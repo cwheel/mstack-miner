@@ -13,7 +13,7 @@ class SgMiner(Miner):
         try:
             sock.connect((self._host, self._port))
         except:
-            return { 'error': 'miner_down' }
+            return { 'error': Miner.DOWN }
 
         return sock
 
@@ -40,7 +40,7 @@ class SgMiner(Miner):
                 else:
                     resp += next_resp
         except:
-            return { 'error': 'miner_bad_response' }
+            return { 'error': Miner.BAD_RESPONSE }
 
         if expect_multiple:
             return json.loads(resp[:-1])[cmd.upper()]

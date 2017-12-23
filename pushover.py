@@ -13,15 +13,13 @@ class Pushover(object):
         self.user_token = user_token
         self.app_token = app_token
 
-    def send_notification(self, message, title=None, priority=Pushover.PRIORITY_NORMAL):
+    def send_notification(self, message, title='mstack', priority=Pushover.PRIORITY_NORMAL):
         push_body = {
             'user': self.user_token,
             'token': self.app_token,
             'message': message,
-            'priority': priority
+            'priority': priority,
+            'title': title
         }
-
-        if title:
-            push_body['title'] = title
 
         request.post(Pushover.PUSH_ENDPOINT, data=push_body)
