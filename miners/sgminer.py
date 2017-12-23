@@ -9,7 +9,11 @@ class SgMiner(Miner):
 
     def _get_socket(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self._host, self._port))
+
+        try:
+            sock.connect((self._host, self._port))
+        except:
+            return { 'error': 'miner_down' }
 
         return sock
 
@@ -17,6 +21,10 @@ class SgMiner(Miner):
         payload = { 'command': cmd }
 
         sock = self._get_socket()
+
+        if sock is None:
+            return {}
+
         sock.send(
             json.dumps(payload)
         )
@@ -31,8 +39,8 @@ class SgMiner(Miner):
                     break
                 else:
                     resp += next_resp
-        except socket.timeout:
-            return {}
+        except:
+            return { 'error': 'miner_bad_response' }
 
         if expect_multiple:
             return json.loads(resp[:-1])[cmd.upper()]
@@ -40,45 +48,61 @@ class SgMiner(Miner):
             return json.loads(resp[:-1])[cmd.upper()][0]
 
     def host(self):
-        return self._run_command('version')['Miner']
+        host = self._run_command('version')
+
+        if host.get('error'):
+            return host
+
+        return {
+            'miner': host.get('Miner')
+        }
 
     def config(self):
         config = self._run_command('config')
 
+        if config.get('error'):
+            return config
+
         return {
-            'os': config['OS'],
-            'pool_count': config['Pool Count'],
-            'gpu_count': config['GPU Count']
+            'os': config.get('OS'),
+            'pool_count': config.get('Pool Count'),
+            'gpu_count': config.get('GPU Count')
         }
 
     def work_summary(self):
         summary = self._run_command('summary')
 
+        if summary.get('error'):
+            return summary
+
         return {
-            'difficulty': summary['Difficulty Accepted'],
-            'hash_rate_5s': summary['KHS 5s'],
-            'hash_rate_avg': summary['KHS av'],
-            'rejected_shares_percent': summary['Pool Rejected%'],
-            'found_blocks': summary['Found Blocks'],
-            'stale_shares_percent': summary['Pool Stale%'],
-            'hardware_errors': summary['Hardware Errors'],
-            'accepted_shares': summary['Accepted']
+            'difficulty': summary.get('Difficulty Accepted'),
+            'hash_rate_5s': summary.get('KHS 5s'),
+            'hash_rate_avg': summary.get('KHS av'),
+            'rejected_shares_percent': summary.get('Pool Rejected%'),
+            'found_blocks': summary.get('Found Blocks'),
+            'stale_shares_percent': summary.get('Pool Stale%'),
+            'hardware_errors': summary.get('Hardware Errors'),
+            'accepted_shares': summary.get('Accepted')
         }
 
     def gpus(self):
         devs_raw = self._run_command('devs',  expect_multiple = True)
         devs = []
 
+        if devs_raw.get('error'):
+            return devs_raw
+
         for dev in devs_raw:
             devs.append({
-                'hash_rate_5s': dev['KHS 5s'],
-                'temperature': dev['Temperature'],
-                'clock_freq': dev['GPU Clock'],
-                'status': dev['Status'],
-                'fan_percent': dev['Fan Percent'],
-                'accepted_shares': dev['Accepted'],
-                'rejected_shares': dev['Rejected'],
-                'raw_intensity': dev['RawIntensity']
+                'hash_rate_5s': dev.get('KHS 5s'),
+                'temperature': dev.get('Temperature'),
+                'clock_freq': dev.get('GPU Clock'),
+                'status': dev.get('Status'),
+                'fan_percent': dev.get('Fan Percent'),
+                'accepted_shares': dev.get('Accepted'),
+                'rejected_shares': dev.get('Rejected'),
+                'raw_intensity': dev.get('RawIntensity')
             })
 
         return devs
