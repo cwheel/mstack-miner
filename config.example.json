@@ -6,5 +6,7 @@
     "api_username": "test",
     "api_password": "test",
     "ssl_cert": "cert.pem",
-    "ssl_key": "key.pem"
+    "ssl_key": "key.pem",
+    "push_user_token": "",
+    "push_app_token": ""
 }

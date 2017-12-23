@@ -2,7 +2,7 @@ import json
 
 from miners import MINER_TYPES
 from api import API
-from logger import Logger
+from watchdog import Watchdog
 
 from elasticsearch import Elasticsearch
 
@@ -18,7 +18,9 @@ if __name__ == '__main__':
         config.get('miner_name', 'mstack-miner'),
     )
 
-    Logger(config.get('log_interval', 60), miner, es).start()
+    push_service = Pushover(config['push_user_token'], config['push_app_token'])
+
+    Watchdog(config.get('watchdog_interval', 60), miner, es, push_service).start()
 
     API(
         config.get('api_port', 3000),

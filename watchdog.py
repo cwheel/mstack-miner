@@ -4,7 +4,7 @@ from time import sleep
 from datetime import datetime
 from threading import Thread
 
-class Logger(Thread):
+class Watchdog(Thread):
     def __init__(self, interval, miner, es):
          Thread.__init__(self)
 
@@ -20,10 +20,10 @@ class Logger(Thread):
 
     def _run_loop(self):
         sleep(self.interval)
-        self._log()
-        self._runLoop()
+        self._watch()
+        self._run_loop()
 
-    def _log(self):
+    def _watch(self):
         gpus = self.miner.gpus()
         summary = self.miner.work_summary()
 
